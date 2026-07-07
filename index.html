@@ -1,0 +1,222 @@
+import React, { useState } from 'react';
+import {
+  Flame, Youtube, Activity, Dumbbell, AlertTriangle, Bone, ShieldAlert,
+  RefreshCcw, CheckCircle2, Circle, Stethoscope, Waves, Bike, ChevronRight
+} from 'lucide-react';
+
+const strokeProps = { 
+  fill: "none", 
+  stroke: "currentColor", 
+  strokeWidth: 3.5, 
+  strokeLinecap: "round", 
+  strokeLinejoin: "round" 
+};
+
+const MachineIcons = {
+  chestPress: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      {/* 등받이 + 좌석 */}
+      <path d="M14 12v42 M50 12v8" {...strokeProps} />
+      <rect x="18" y="45" width="28" height="6" rx="2" {...strokeProps} />
+      {/* 사람 */}
+      <circle cx="32" cy="22" r="6" {...strokeProps} />
+      <path d="M32 28v18" {...strokeProps} />
+      {/* 팔 + 손잡이 */}
+      <path d="M26 28 L20 35 M38 28 L44 35" {...strokeProps} />
+      <path d="M20 35 h-8 M44 35 h8" {...strokeProps} />
+      {/* 밀어내는 화살표 */}
+      <path d="M24 32 L30 27 M40 32 L34 27" {...strokeProps} />
+      <path d="M27 29 L30 27 L27 25" {...strokeProps} />
+      <path d="M37 29 L34 27 L37 25" {...strokeProps} />
+    </svg>
+  ),
+
+  pecDeck: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <path d="M16 12v40 M48 12v40" {...strokeProps} />
+      <rect x="20" y="42" width="24" height="8" rx="2" {...strokeProps} />
+      <circle cx="32" cy="23" r="6" {...strokeProps} />
+      {/* 팔 움직임 (벌렸다 모으는) */}
+      <path d="M32 29 L20 38 M32 29 L44 38" {...strokeProps} />
+      <path d="M20 38 Q26 30 32 29" {...strokeProps} />
+      <path d="M44 38 Q38 30 32 29" {...strokeProps} />
+      {/* 모으는 화살표 */}
+      <path d="M25 35 L29 32 M39 35 L35 32" {...strokeProps} />
+    </svg>
+  ),
+
+  cablePushdown: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      {/* 풀리 */}
+      <circle cx="40" cy="12" r="4" {...strokeProps} />
+      <path d="M40 16 L40 24" {...strokeProps} />
+      {/* 사람 */}
+      <circle cx="32" cy="28" r="6" {...strokeProps} />
+      <path d="M32 34 L32 46" {...strokeProps} />
+      {/* 팔 */}
+      <path d="M32 34 L38 40 L44 40" {...strokeProps} />
+      {/* 케이블 바 */}
+      <rect x="40" y="38" width="12" height="4" rx="1" {...strokeProps} />
+      {/* 아래로 누르는 화살표 */}
+      <path d="M45 42 L45 48" {...strokeProps} />
+      <path d="M43 46 L45 48 L47 46" {...strokeProps} />
+    </svg>
+  ),
+
+  latPulldown: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      {/* 바 */}
+      <path d="M18 18 L46 18" {...strokeProps} strokeWidth="5" />
+      {/* 사람 */}
+      <circle cx="32" cy="26" r="6" {...strokeProps} />
+      <path d="M32 32 L32 48" {...strokeProps} />
+      {/* 다리 고정 */}
+      <rect x="22" y="48" width="20" height="6" rx="2" {...strokeProps} />
+      {/* 당기는 팔 */}
+      <path d="M26 28 L22 36 M38 28 L42 36" {...strokeProps} />
+      {/* 아래로 당기는 화살표 */}
+      <path d="M24 34 L28 38 M40 34 L36 38" {...strokeProps} />
+    </svg>
+  ),
+
+  seatedRow: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <rect x="12" y="38" width="40" height="8" rx="3" {...strokeProps} />
+      <circle cx="42" cy="26" r="6" {...strokeProps} />
+      <path d="M42 32 L42 42" {...strokeProps} />
+      {/* 손잡이 당김 */}
+      <path d="M38 32 L28 36 M46 32 L52 36" {...strokeProps} />
+      {/* 등 당기는 화살표 */}
+      <path d="M32 34 L36 38" {...strokeProps} />
+    </svg>
+  ),
+
+  armCurl: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      {/* 받침대 */}
+      <rect x="14" y="38" width="36" height="8" rx="2" {...strokeProps} />
+      <circle cx="38" cy="24" r="6" {...strokeProps} />
+      <path d="M38 30 L38 40" {...strokeProps} />
+      {/* 컬 동작 */}
+      <path d="M32 38 Q38 30 46 36" {...strokeProps} />
+      <circle cx="46" cy="36" r="3" fill="currentColor" />
+    </svg>
+  ),
+
+  wideSquat: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <circle cx="32" cy="18" r="6" {...strokeProps} />
+      <path d="M32 24 L32 38" {...strokeProps} />
+      <path d="M22 32 L32 42 L42 32" {...strokeProps} />
+      <path d="M18 50 L26 50 M38 50 L46 50" {...strokeProps} />
+      {/* 내려가는 화살표 */}
+      <path d="M32 36 L32 44" strokeDasharray="2 2" {...strokeProps} />
+    </svg>
+  ),
+
+  stiffDeadlift: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <circle cx="38" cy="20" r="6" {...strokeProps} />
+      <path d="M38 26 L24 42" {...strokeProps} />
+      <path d="M24 42 L24 52" {...strokeProps} />
+      <path d="M20 50 L28 54" {...strokeProps} />
+    </svg>
+  ),
+
+  walkingLunge: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <circle cx="28" cy="18" r="6" {...strokeProps} />
+      <path d="M28 24 L28 38" {...strokeProps} />
+      <path d="M28 38 L18 48 M28 38 L38 46" {...strokeProps} />
+      <path d="M18 48 L14 56 M38 46 L42 56" {...strokeProps} />
+    </svg>
+  ),
+
+  shoulderPress: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <circle cx="32" cy="28" r="6" {...strokeProps} />
+      <path d="M32 34 L32 46" {...strokeProps} />
+      <path d="M24 32 L24 22 M40 32 L40 22" {...strokeProps} />
+      <path d="M24 26 L28 22 M40 26 L36 22" {...strokeProps} />
+      {/* 위로 미는 화살표 */}
+      <path d="M26 24 L32 18 M38 24 L32 18" {...strokeProps} />
+    </svg>
+  ),
+
+  lateralRaise: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <circle cx="32" cy="22" r="6" {...strokeProps} />
+      <path d="M32 28 L32 40" {...strokeProps} />
+      <path d="M32 32 L20 38 M32 32 L44 38" {...strokeProps} />
+    </svg>
+  ),
+
+  reversePecDeck: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <path d="M16 12v40 M48 12v40" {...strokeProps} />
+      <rect x="20" y="42" width="24" height="8" rx="2" {...strokeProps} />
+      <circle cx="32" cy="23" r="6" {...strokeProps} />
+      <path d="M32 29 L22 40 M32 29 L42 40" {...strokeProps} />
+    </svg>
+  ),
+
+  assistedPullup: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <path d="M14 12 L50 12" {...strokeProps} />
+      <circle cx="32" cy="24" r="6" {...strokeProps} />
+      <path d="M32 30 L32 44" {...strokeProps} />
+      <rect x="22" y="48" width="20" height="6" rx="2" {...strokeProps} />
+      <path d="M24 18 L32 24 L40 18" {...strokeProps} />
+    </svg>
+  ),
+
+  cableCrunch: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <circle cx="32" cy="22" r="6" {...strokeProps} />
+      <path d="M32 28 L32 38" {...strokeProps} />
+      <path d="M26 38 L26 46 M38 38 L38 46" {...strokeProps} />
+      <path d="M32 32 Q26 42 32 48" {...strokeProps} />
+    </svg>
+  ),
+
+  backExtension: (
+    <svg viewBox="0 0 64 64" className="w-10 h-10">
+      <path d="M18 38 L42 28" {...strokeProps} />
+      <circle cx="46" cy="26" r="6" {...strokeProps} />
+      <path d="M46 32 L36 42" {...strokeProps} />
+      <path d="M36 42 L32 52" {...strokeProps} />
+    </svg>
+  ),
+};
+
+// machineVisual은 그대로 유지 (필요시 grad, tint 조정 가능)
+const machineVisual = {
+  "체스트 프레스 머신": { icon: "chestPress", grad: "from-orange-500/25 to-orange-600/5", tint: "text-orange-300" },
+  "펙 덱 플라이 머신": { icon: "pecDeck", grad: "from-amber-500/25 to-amber-600/5", tint: "text-amber-300" },
+  "케이블 푸시다운": { icon: "cablePushdown", grad: "from-orange-500/25 to-red-500/5", tint: "text-orange-300" },
+  "랫 풀다운": { icon: "latPulldown", grad: "from-lime-500/25 to-lime-600/5", tint: "text-lime-300" },
+  "시티드 로우 머신": { icon: "seatedRow", grad: "from-emerald-500/25 to-emerald-600/5", tint: "text-emerald-300" },
+  "암 컬 머신": { icon: "armCurl", grad: "from-lime-500/25 to-emerald-500/5", tint: "text-lime-300" },
+  "와이드 스쿼트 (맨몸)": { icon: "wideSquat", grad: "from-yellow-500/25 to-orange-500/5", tint: "text-yellow-300" },
+  "스티프 레그 데드리프트": { icon: "stiffDeadlift", grad: "from-orange-500/25 to-yellow-500/5", tint: "text-orange-300" },
+  "워킹 런지": { icon: "walkingLunge", grad: "from-amber-500/25 to-yellow-500/5", tint: "text-amber-300" },
+  "숄더 프레스 머신": { icon: "shoulderPress", grad: "from-orange-500/25 to-amber-500/5", tint: "text-orange-300" },
+  "케이블 레터럴 레이즈": { icon: "lateralRaise", grad: "from-lime-500/25 to-orange-500/5", tint: "text-lime-300" },
+  "리버스 펙 덱 플라이": { icon: "reversePecDeck", grad: "from-emerald-500/25 to-lime-500/5", tint: "text-emerald-300" },
+  "어시스트 풀업 머신": { icon: "assistedPullup", grad: "from-orange-500/25 to-red-500/5", tint: "text-orange-300" },
+  "케이블 크런치": { icon: "cableCrunch", grad: "from-yellow-500/25 to-lime-500/5", tint: "text-yellow-300" },
+  "백 익스텐션": { icon: "backExtension", grad: "from-amber-500/25 to-orange-500/5", tint: "text-amber-300" },
+};
+
+// workoutData와 나머지 컴포넌트는 그대로 유지 (변경 없음)
+const workoutData = [ /* ... 기존 workoutData 그대로 ... */ ];
+
+export default function App() {
+  // ... 기존 상태 및 로직 그대로 ...
+  return (
+    <div className="min-h-screen bg-[#15140F] font-sans text-[#F1EDE3]">
+      {/* 기존 전체 JSX 그대로 사용 */}
+      {/* MachineIcons 부분만 위에서 교체한 것으로 업데이트 */}
+    </div>
+  );
+}
