@@ -1,222 +1,412 @@
-import React, { useState } from 'react';
-import {
-  Flame, Youtube, Activity, Dumbbell, AlertTriangle, Bone, ShieldAlert,
-  RefreshCcw, CheckCircle2, Circle, Stethoscope, Waves, Bike, ChevronRight
+import React, { useState, useEffect } from 'react';
+import { 
+  Target, Flame, Info, Youtube, Activity, Camera, Dumbbell, AlertTriangle, 
+  Bone, ShieldAlert, RefreshCcw, CheckCircle, ChevronRight, Stethoscope,
+  CalendarDays, HeartPulse, X, Check, Plus
 } from 'lucide-react';
 
-const strokeProps = { 
-  fill: "none", 
-  stroke: "currentColor", 
-  strokeWidth: 3.5, 
-  strokeLinecap: "round", 
-  strokeLinejoin: "round" 
-};
+const workoutData = [
+  { day: "Day 1", short: "가슴/삼두", title: "가슴 & 삼두 (앞으로 미는 날)", focus: "탄탄한 가슴 라인과 굵은 팔뚝 뒷면 만들기", exercises: [
+    { name: "체스트 프레스 머신", visual: "의자에 앉아서 양손잡이를 잡고 앞으로 미는 기구", action: "의자에 등을 딱 붙이고 앉아, 양손으로 손잡이를 가슴 앞으로 '쭉~' 밀어냅니다.", reps: "15회씩 4세트", searchQuery: "체스트 프레스 머신 자세 쇼츠" },
+    { name: "펙 덱 플라이 머신", visual: "양팔을 벌리고 앉는 기구 (나비 모양)", action: "양팔을 벌려 패드에 팔뚝을 대고, 커다란 나무를 껴안듯이 양팔을 가슴 앞으로 모아줍니다.", reps: "15회씩 4세트", searchQuery: "펙 덱 플라이 자세 쇼츠" },
+    { name: "케이블 푸시다운", visual: "위에서 아래로 줄(케이블)이 연결된 기구", action: "서서 위쪽에 매달린 짧은 막대기나 밧줄을 잡고, 팔꿈치를 옆구리에 고정한 채로 바닥을 향해 '꾹' 눌러 내립니다.", reps: "20회씩 4세트", searchQuery: "케이블 푸시다운 자세 쇼츠" }
+  ]},
+  { day: "Day 2", short: "등/이두", title: "등 & 이두 (몸 쪽으로 당기는 날)", focus: "넓은 어깨를 돋보이게 하는 V핏 등판 만들기", exercises: [
+    { name: "랫 풀다운", visual: "머리 위에 긴 막대기가 매달린 앉는 기구", action: "의자에 앉아 허벅지를 패드에 고정하고, 만세 하듯 긴 막대기를 넓게 잡아 쇄골(가슴 위쪽) 쪽으로 힘껏 끌어내립니다.", reps: "15회씩 5세트", searchQuery: "랫 풀다운 자세 쇼츠" },
+    { name: "시티드 로우 머신", visual: "발을 지지하고 앉아 줄을 당기는 기구", action: "바닥이나 의자에 앉아 발을 지지대에 대고, 손잡이를 배꼽 쪽으로 노 젓듯이 쭉 당겨줍니다.", reps: "15회씩 4세트", searchQuery: "시티드 로우 머신 자세 쇼츠" },
+    { name: "암 컬 머신", visual: "팔꿈치를 받침대에 올리고 앉는 기구", action: "푹신한 받침대에 양팔을 얹고, 손잡이를 잡아 얼굴 쪽으로 구부려 올립니다.", reps: "15회씩 4세트", searchQuery: "암 컬 머신 자세 쇼츠" }
+  ]},
+  { day: "Day 3", short: "하체", title: "하체 (모양 다듬기 & 힙업)", focus: "하체 굵기는 줄이고, 탄력과 데피니션 살리기", exercises: [
+    { name: "와이드 스쿼트 (맨몸)", visual: "다리를 넓게 벌리고 서서 하는 동작", action: "일반 스쿼트보다 다리를 넓게 벌려, 안쪽 허벅지와 엉덩이 하부 라인을 다듬는 데 집중합니다.", reps: "20~25회씩 4세트", searchQuery: "와이드 스쿼트 자세 쇼츠" },
+    { name: "스티프 레그 데드리프트", visual: "다리를 살짝만 굽히고 상체를 숙이는 동작", action: "무릎을 살짝만 굽힌 채 고정하고, 허리를 펴고 인사하듯 상체를 숙여 뒷 허벅지를 길게 늘려줍니다.", reps: "20회씩 4세트", searchQuery: "스티프 레그 데드리프트 자세 쇼츠" },
+    { name: "워킹 런지", visual: "넓은 보폭으로 걸어가며 앉는 동작", action: "보폭을 넓게 하여 한 걸음씩 내디디며 앉습니다. 엉덩이와 하체 전체 밸런스, 체지방 연소에 좋습니다.", reps: "왕복 30걸음씩 4세트", searchQuery: "워킹 런지 자세 쇼츠" }
+  ]},
+  { day: "Day 4", short: "어깨", title: "어깨 (볼륨 키우기)", focus: "하체와 밸런스를 맞추기 위한 어깨 뽕 장착", exercises: [
+    { name: "숄더 프레스 머신", visual: "앉아서 양손잡이를 위로 미는 기구", action: "의자에 앉아 귀 옆에 있는 손잡이를 잡고, 만세 하듯이 하늘 위로 쭉 밀어 올립니다.", reps: "15회씩 4세트", searchQuery: "숄더 프레스 머신 자세 쇼츠" },
+    { name: "케이블 레터럴 레이즈", visual: "아래에서 줄(케이블)을 한 손으로 잡고 서는 기구", action: "기구 옆에 서서 아래쪽 케이블 손잡이를 잡고, 새가 날개짓 하듯이 옆으로 팔을 들어 올립니다.", reps: "20회씩 4세트", searchQuery: "케이블 레터럴 레이즈 자세 쇼츠" },
+    { name: "리버스 펙 덱 플라이", visual: "나비 머신(Day 1)에 뒤돌아 앉는 기구", action: "가슴 운동 기구를 뒤돌아 앉아, 양손으로 손잡이를 잡고 등 쪽으로 날개짓 하듯 벌려줍니다.", reps: "15회씩 4세트", searchQuery: "리버스 펙 덱 플라이 자세 쇼츠" }
+  ]},
+  { day: "Day 5", short: "코어", title: "전신 순환 & 복근", focus: "상하체 밸런스 점검 및 바디프로필 필수 코어 장착", exercises: [
+    { name: "어시스트 풀업 머신", visual: "무릎을 대는 발판이 있는 높은 기구", action: "기구 발판에 무릎을 대고 위쪽 손잡이를 잡은 뒤 턱걸이를 합니다. 기구가 몸을 위로 밀어줍니다.", reps: "실패할 때까지 4세트", searchQuery: "어시스트 풀업 머신 자세 쇼츠" },
+    { name: "케이블 크런치", visual: "위쪽 케이블 줄을 잡고 무릎 꿇는 동작", action: "케이블 기구 앞에 무릎을 꿇고 앉아, 밧줄을 잡고 머리 뒤에 위치시킵니다. 바닥을 향해 큰 절을 하듯 숙입니다.", reps: "20회씩 4세트", searchQuery: "케이블 크런치 자세 쇼츠" },
+    { name: "백 익스텐션", visual: "골반을 패드에 대고 상체를 숙이는 45도 기구", action: "허벅지 앞쪽을 패드에 대고 발을 고정한 뒤, 상체를 아래로 숙였다가 허리와 엉덩이 힘으로 들어 올립니다.", reps: "15회씩 4세트", searchQuery: "백 익스텐션 자세 쇼츠" }
+  ]}
+];
 
-const MachineIcons = {
-  chestPress: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      {/* 등받이 + 좌석 */}
-      <path d="M14 12v42 M50 12v8" {...strokeProps} />
-      <rect x="18" y="45" width="28" height="6" rx="2" {...strokeProps} />
-      {/* 사람 */}
-      <circle cx="32" cy="22" r="6" {...strokeProps} />
-      <path d="M32 28v18" {...strokeProps} />
-      {/* 팔 + 손잡이 */}
-      <path d="M26 28 L20 35 M38 28 L44 35" {...strokeProps} />
-      <path d="M20 35 h-8 M44 35 h8" {...strokeProps} />
-      {/* 밀어내는 화살표 */}
-      <path d="M24 32 L30 27 M40 32 L34 27" {...strokeProps} />
-      <path d="M27 29 L30 27 L27 25" {...strokeProps} />
-      <path d="M37 29 L34 27 L37 25" {...strokeProps} />
-    </svg>
-  ),
-
-  pecDeck: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <path d="M16 12v40 M48 12v40" {...strokeProps} />
-      <rect x="20" y="42" width="24" height="8" rx="2" {...strokeProps} />
-      <circle cx="32" cy="23" r="6" {...strokeProps} />
-      {/* 팔 움직임 (벌렸다 모으는) */}
-      <path d="M32 29 L20 38 M32 29 L44 38" {...strokeProps} />
-      <path d="M20 38 Q26 30 32 29" {...strokeProps} />
-      <path d="M44 38 Q38 30 32 29" {...strokeProps} />
-      {/* 모으는 화살표 */}
-      <path d="M25 35 L29 32 M39 35 L35 32" {...strokeProps} />
-    </svg>
-  ),
-
-  cablePushdown: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      {/* 풀리 */}
-      <circle cx="40" cy="12" r="4" {...strokeProps} />
-      <path d="M40 16 L40 24" {...strokeProps} />
-      {/* 사람 */}
-      <circle cx="32" cy="28" r="6" {...strokeProps} />
-      <path d="M32 34 L32 46" {...strokeProps} />
-      {/* 팔 */}
-      <path d="M32 34 L38 40 L44 40" {...strokeProps} />
-      {/* 케이블 바 */}
-      <rect x="40" y="38" width="12" height="4" rx="1" {...strokeProps} />
-      {/* 아래로 누르는 화살표 */}
-      <path d="M45 42 L45 48" {...strokeProps} />
-      <path d="M43 46 L45 48 L47 46" {...strokeProps} />
-    </svg>
-  ),
-
-  latPulldown: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      {/* 바 */}
-      <path d="M18 18 L46 18" {...strokeProps} strokeWidth="5" />
-      {/* 사람 */}
-      <circle cx="32" cy="26" r="6" {...strokeProps} />
-      <path d="M32 32 L32 48" {...strokeProps} />
-      {/* 다리 고정 */}
-      <rect x="22" y="48" width="20" height="6" rx="2" {...strokeProps} />
-      {/* 당기는 팔 */}
-      <path d="M26 28 L22 36 M38 28 L42 36" {...strokeProps} />
-      {/* 아래로 당기는 화살표 */}
-      <path d="M24 34 L28 38 M40 34 L36 38" {...strokeProps} />
-    </svg>
-  ),
-
-  seatedRow: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <rect x="12" y="38" width="40" height="8" rx="3" {...strokeProps} />
-      <circle cx="42" cy="26" r="6" {...strokeProps} />
-      <path d="M42 32 L42 42" {...strokeProps} />
-      {/* 손잡이 당김 */}
-      <path d="M38 32 L28 36 M46 32 L52 36" {...strokeProps} />
-      {/* 등 당기는 화살표 */}
-      <path d="M32 34 L36 38" {...strokeProps} />
-    </svg>
-  ),
-
-  armCurl: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      {/* 받침대 */}
-      <rect x="14" y="38" width="36" height="8" rx="2" {...strokeProps} />
-      <circle cx="38" cy="24" r="6" {...strokeProps} />
-      <path d="M38 30 L38 40" {...strokeProps} />
-      {/* 컬 동작 */}
-      <path d="M32 38 Q38 30 46 36" {...strokeProps} />
-      <circle cx="46" cy="36" r="3" fill="currentColor" />
-    </svg>
-  ),
-
-  wideSquat: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <circle cx="32" cy="18" r="6" {...strokeProps} />
-      <path d="M32 24 L32 38" {...strokeProps} />
-      <path d="M22 32 L32 42 L42 32" {...strokeProps} />
-      <path d="M18 50 L26 50 M38 50 L46 50" {...strokeProps} />
-      {/* 내려가는 화살표 */}
-      <path d="M32 36 L32 44" strokeDasharray="2 2" {...strokeProps} />
-    </svg>
-  ),
-
-  stiffDeadlift: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <circle cx="38" cy="20" r="6" {...strokeProps} />
-      <path d="M38 26 L24 42" {...strokeProps} />
-      <path d="M24 42 L24 52" {...strokeProps} />
-      <path d="M20 50 L28 54" {...strokeProps} />
-    </svg>
-  ),
-
-  walkingLunge: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <circle cx="28" cy="18" r="6" {...strokeProps} />
-      <path d="M28 24 L28 38" {...strokeProps} />
-      <path d="M28 38 L18 48 M28 38 L38 46" {...strokeProps} />
-      <path d="M18 48 L14 56 M38 46 L42 56" {...strokeProps} />
-    </svg>
-  ),
-
-  shoulderPress: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <circle cx="32" cy="28" r="6" {...strokeProps} />
-      <path d="M32 34 L32 46" {...strokeProps} />
-      <path d="M24 32 L24 22 M40 32 L40 22" {...strokeProps} />
-      <path d="M24 26 L28 22 M40 26 L36 22" {...strokeProps} />
-      {/* 위로 미는 화살표 */}
-      <path d="M26 24 L32 18 M38 24 L32 18" {...strokeProps} />
-    </svg>
-  ),
-
-  lateralRaise: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <circle cx="32" cy="22" r="6" {...strokeProps} />
-      <path d="M32 28 L32 40" {...strokeProps} />
-      <path d="M32 32 L20 38 M32 32 L44 38" {...strokeProps} />
-    </svg>
-  ),
-
-  reversePecDeck: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <path d="M16 12v40 M48 12v40" {...strokeProps} />
-      <rect x="20" y="42" width="24" height="8" rx="2" {...strokeProps} />
-      <circle cx="32" cy="23" r="6" {...strokeProps} />
-      <path d="M32 29 L22 40 M32 29 L42 40" {...strokeProps} />
-    </svg>
-  ),
-
-  assistedPullup: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <path d="M14 12 L50 12" {...strokeProps} />
-      <circle cx="32" cy="24" r="6" {...strokeProps} />
-      <path d="M32 30 L32 44" {...strokeProps} />
-      <rect x="22" y="48" width="20" height="6" rx="2" {...strokeProps} />
-      <path d="M24 18 L32 24 L40 18" {...strokeProps} />
-    </svg>
-  ),
-
-  cableCrunch: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <circle cx="32" cy="22" r="6" {...strokeProps} />
-      <path d="M32 28 L32 38" {...strokeProps} />
-      <path d="M26 38 L26 46 M38 38 L38 46" {...strokeProps} />
-      <path d="M32 32 Q26 42 32 48" {...strokeProps} />
-    </svg>
-  ),
-
-  backExtension: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10">
-      <path d="M18 38 L42 28" {...strokeProps} />
-      <circle cx="46" cy="26" r="6" {...strokeProps} />
-      <path d="M46 32 L36 42" {...strokeProps} />
-      <path d="M36 42 L32 52" {...strokeProps} />
-    </svg>
-  ),
-};
-
-// machineVisual은 그대로 유지 (필요시 grad, tint 조정 가능)
-const machineVisual = {
-  "체스트 프레스 머신": { icon: "chestPress", grad: "from-orange-500/25 to-orange-600/5", tint: "text-orange-300" },
-  "펙 덱 플라이 머신": { icon: "pecDeck", grad: "from-amber-500/25 to-amber-600/5", tint: "text-amber-300" },
-  "케이블 푸시다운": { icon: "cablePushdown", grad: "from-orange-500/25 to-red-500/5", tint: "text-orange-300" },
-  "랫 풀다운": { icon: "latPulldown", grad: "from-lime-500/25 to-lime-600/5", tint: "text-lime-300" },
-  "시티드 로우 머신": { icon: "seatedRow", grad: "from-emerald-500/25 to-emerald-600/5", tint: "text-emerald-300" },
-  "암 컬 머신": { icon: "armCurl", grad: "from-lime-500/25 to-emerald-500/5", tint: "text-lime-300" },
-  "와이드 스쿼트 (맨몸)": { icon: "wideSquat", grad: "from-yellow-500/25 to-orange-500/5", tint: "text-yellow-300" },
-  "스티프 레그 데드리프트": { icon: "stiffDeadlift", grad: "from-orange-500/25 to-yellow-500/5", tint: "text-orange-300" },
-  "워킹 런지": { icon: "walkingLunge", grad: "from-amber-500/25 to-yellow-500/5", tint: "text-amber-300" },
-  "숄더 프레스 머신": { icon: "shoulderPress", grad: "from-orange-500/25 to-amber-500/5", tint: "text-orange-300" },
-  "케이블 레터럴 레이즈": { icon: "lateralRaise", grad: "from-lime-500/25 to-orange-500/5", tint: "text-lime-300" },
-  "리버스 펙 덱 플라이": { icon: "reversePecDeck", grad: "from-emerald-500/25 to-lime-500/5", tint: "text-emerald-300" },
-  "어시스트 풀업 머신": { icon: "assistedPullup", grad: "from-orange-500/25 to-red-500/5", tint: "text-orange-300" },
-  "케이블 크런치": { icon: "cableCrunch", grad: "from-yellow-500/25 to-lime-500/5", tint: "text-yellow-300" },
-  "백 익스텐션": { icon: "backExtension", grad: "from-amber-500/25 to-orange-500/5", tint: "text-amber-300" },
-};
-
-// workoutData와 나머지 컴포넌트는 그대로 유지 (변경 없음)
-const workoutData = [ /* ... 기존 workoutData 그대로 ... */ ];
+// 기록 옵션 맵핑 (색상 적용)
+const recordOptions = [
+  { id: 'Day 1', label: 'Day 1 (가슴)', color: 'bg-orange-500' },
+  { id: 'Day 2', label: 'Day 2 (등)', color: 'bg-lime-500' },
+  { id: 'Day 3', label: 'Day 3 (하체)', color: 'bg-yellow-500' },
+  { id: 'Day 4', label: 'Day 4 (어깨)', color: 'bg-amber-500' },
+  { id: 'Day 5', label: 'Day 5 (코어)', color: 'bg-teal-500' },
+  { id: 'Cardio', label: '유산소', color: 'bg-blue-500' },
+  { id: 'Rest', label: '휴식', color: 'bg-slate-500' },
+];
 
 export default function App() {
-  // ... 기존 상태 및 로직 그대로 ...
+  const [activeTab, setActiveTab] = useState('workout'); // workout, calendar, knee
+  const [activeDay, setActiveDay] = useState(0);
+
+  // --- 추가된 부분: 운동 완료 상태 관리 ---
+  const [completedWorkouts, setCompletedWorkouts] = useState({});
+
+  const handleToggleExercise = (exerciseName) => {
+    setCompletedWorkouts(prev => ({
+      ...prev,
+      [exerciseName]: !prev[exerciseName]
+    }));
+  };
+
+  // --- 달력 상태 관리 ---
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [records, setRecords] = useState({}); // { '2026-07-14': 'Day 1' }
+  const [selectedDate, setSelectedDate] = useState(null); // 모달창 띄울 날짜
+
+  // 달력 계산 함수
+  const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const getFirstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+  const daysInMonth = getDaysInMonth(currentMonth);
+  const firstDay = getFirstDayOfMonth(currentMonth);
+  
+  const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+
+  const formatDateString = (year, month, day) => {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  };
+
+  const handleRecordSelect = (recordId) => {
+    if (selectedDate) {
+      setRecords({ ...records, [selectedDate]: recordId });
+      setSelectedDate(null);
+    }
+  };
+
+  const removeRecord = () => {
+    if (selectedDate) {
+      const newRecords = { ...records };
+      delete newRecords[selectedDate];
+      setRecords(newRecords);
+      setSelectedDate(null);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#15140F] font-sans text-[#F1EDE3]">
-      {/* 기존 전체 JSX 그대로 사용 */}
-      {/* MachineIcons 부분만 위에서 교체한 것으로 업데이트 */}
+    <div className="min-h-screen bg-[#15140F] font-sans text-[#F1EDE3] selection:bg-teal-500 selection:text-white pb-24 md:pb-8 relative">
+      
+      {/* Top Header (Only on Desktop) */}
+      <header className="hidden md:flex bg-[#1E1D17] border-b border-[#2D2B23] sticky top-0 z-40 shadow-sm">
+        <div className="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            <div className="bg-teal-600 p-2 rounded-lg shadow-lg shadow-teal-900/30">
+              <Camera className="text-[#15140F] w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black tracking-tight text-[#F1EDE3]">바프 12주 다이어리</h1>
+            </div>
+          </div>
+          
+          <div className="flex bg-[#15140F] p-1.5 rounded-xl border border-[#2D2B23]">
+            <button onClick={() => setActiveTab('workout')} className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'workout' ? 'bg-teal-600 text-[#15140F]' : 'text-[#A39D8D] hover:text-[#F1EDE3]'}`}>
+              <Dumbbell className="w-4 h-4 inline-block mr-2 mb-0.5" /> 루틴
+            </button>
+            <button onClick={() => setActiveTab('calendar')} className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'calendar' ? 'bg-teal-600 text-[#15140F]' : 'text-[#A39D8D] hover:text-[#F1EDE3]'}`}>
+              <CalendarDays className="w-4 h-4 inline-block mr-2 mb-0.5" /> 기록
+            </button>
+            <button onClick={() => setActiveTab('knee')} className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'knee' ? 'bg-teal-600 text-[#15140F]' : 'text-[#A39D8D] hover:text-[#F1EDE3]'}`}>
+              <HeartPulse className="w-4 h-4 inline-block mr-2 mb-0.5" /> 케어
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Top Header */}
+      <header className="md:hidden bg-[#1E1D17] border-b border-[#2D2B23] sticky top-0 z-40 px-4 py-3 flex items-center justify-center">
+         <h1 className="text-lg font-black tracking-tight text-[#F1EDE3]">바프 12주 다이어리</h1>
+      </header>
+
+      <div className="max-w-5xl mx-auto p-4 md:p-8">
+
+        {/* --- 1. WORKOUT TAB --- */}
+        {activeTab === 'workout' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Day Sub-Navigation */}
+            <div className="flex overflow-x-auto hide-scrollbar bg-[#1E1D17] rounded-xl shadow-lg mb-6 p-2 space-x-2 border border-[#2D2B23]">
+              {workoutData.map((dayObj, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveDay(index)}
+                  className={`flex-1 min-w-[80px] py-3 px-2 rounded-lg text-sm font-bold transition-all duration-200 whitespace-nowrap ${
+                    activeDay === index
+                      ? 'bg-teal-600 text-[#15140F] shadow-md'
+                      : 'bg-transparent text-[#A39D8D] hover:bg-[#2D2B23]'
+                  }`}
+                >
+                  {dayObj.short}
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-[#1E1D17] p-5 rounded-2xl shadow-lg border border-[#2D2B23] border-l-4 border-l-teal-500 mb-6">
+              <h2 className="text-lg md:text-xl font-bold text-[#F1EDE3] mb-1">{workoutData[activeDay].title}</h2>
+              <p className="text-[#A39D8D] text-sm">{workoutData[activeDay].focus}</p>
+            </div>
+
+            <main className="space-y-6">
+              {workoutData[activeDay].exercises.map((exercise, index) => {
+                const isCompleted = !!completedWorkouts[exercise.name];
+
+                return (
+                  <div key={index} className={`bg-[#1E1D17] rounded-3xl shadow-lg border overflow-hidden flex flex-col group transition-all duration-300 ${isCompleted ? 'border-teal-500/50 bg-[#1e2723]' : 'border-[#2D2B23] hover:border-[#4B4739]'}`}>
+                    <div className="p-6 md:p-8 flex flex-col justify-between">
+                      <div>
+                        {/* Title & Checkbox */}
+                        <div className="flex items-center justify-between mb-5">
+                          <div className="flex items-center">
+                            <div className="bg-[#15140F] text-teal-500 font-black w-10 h-10 rounded-full flex items-center justify-center mr-4 shrink-0 text-lg border border-[#2D2B23]">
+                              {index + 1}
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold text-[#F1EDE3]">{exercise.name}</h3>
+                          </div>
+                          
+                          <button 
+                            onClick={() => handleToggleExercise(exercise.name)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all shrink-0 ${
+                              isCompleted 
+                                ? 'bg-teal-500 text-[#15140F] border-teal-500' 
+                                : 'bg-[#15140F] border-[#2D2B23] text-[#A39D8D] hover:text-[#F1EDE3]'
+                            }`}
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="hidden md:inline">{isCompleted ? "완료됨" : "오늘 완료 체크"}</span>
+                            <span className="md:hidden">{isCompleted ? "완료" : "체크"}</span>
+                          </button>
+                        </div>
+
+                        {/* Visual Description */}
+                        <div className="bg-[#15140F] rounded-2xl p-5 mb-6 border border-[#2D2B23]">
+                          <p className="text-xs font-bold text-[#A39D8D] mb-1 tracking-wider uppercase">기구 생김새</p>
+                          <p className="text-sm md:text-base font-semibold text-[#F1EDE3]">{exercise.visual}</p>
+                        </div>
+
+                        {/* Action Description */}
+                        <div className="flex items-start space-x-3 mb-6 pl-2">
+                          <Activity className="w-6 h-6 text-emerald-500 mt-1 shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-[#A39D8D] mb-1 tracking-wider uppercase">어떻게 하나요?</p>
+                            <p className="text-[#C2BCAB] text-sm md:text-base leading-relaxed">{exercise.action}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Reps & Video */}
+                      <div className="flex flex-wrap items-center justify-between border-t border-[#2D2B23] pt-5 mt-2 gap-3">
+                        <div className="flex items-center bg-orange-900/20 text-orange-400 px-4 py-2.5 rounded-xl text-sm font-bold border border-orange-900/40">
+                          <Flame className="w-5 h-5 mr-2" />
+                          {exercise.reps}
+                        </div>
+                        
+                        <a 
+                          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.searchQuery)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center bg-[#E53E3E] hover:bg-[#C53030] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm"
+                        >
+                          <Youtube className="w-5 h-5 mr-2" />
+                          자세 영상 보기
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </main>
+          </div>
+        )}
+
+        {/* --- 2. CALENDAR TAB --- */}
+        {activeTab === 'calendar' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-lg mx-auto">
+            
+            <div className="bg-[#1E1D17] p-6 rounded-3xl shadow-lg border border-[#2D2B23] mb-6">
+              {/* Calendar Header */}
+              <div className="flex justify-between items-center mb-6">
+                <button onClick={prevMonth} className="p-2 bg-[#15140F] rounded-xl hover:bg-[#2D2B23] transition-colors"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+                <h2 className="text-xl font-bold">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</h2>
+                <button onClick={nextMonth} className="p-2 bg-[#15140F] rounded-xl hover:bg-[#2D2B23] transition-colors"><ChevronRight className="w-5 h-5" /></button>
+              </div>
+
+              {/* Days of Week */}
+              <div className="grid grid-cols-7 gap-2 mb-2">
+                {['일', '월', '화', '수', '목', '금', '토'].map((day, i) => (
+                  <div key={day} className={`text-center text-xs font-bold ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-[#A39D8D]'}`}>
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Grid */}
+              <div className="grid grid-cols-7 gap-2">
+                {Array.from({ length: firstDay }).map((_, i) => (
+                  <div key={`empty-${i}`} className="aspect-square rounded-xl bg-transparent"></div>
+                ))}
+                
+                {Array.from({ length: daysInMonth }).map((_, i) => {
+                  const day = i + 1;
+                  const dateString = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                  const isToday = dateString === formatDateString(today.getFullYear(), today.getMonth(), today.getDate());
+                  const record = records[dateString];
+                  const recordConfig = recordOptions.find(opt => opt.id === record);
+
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => setSelectedDate(dateString)}
+                      className={`relative aspect-square rounded-xl flex flex-col items-center justify-center transition-all ${
+                        isToday ? 'border border-teal-500 bg-teal-500/10' : 'bg-[#15140F] border border-[#2D2B23] hover:bg-[#2D2B23]'
+                      }`}
+                    >
+                      <span className={`text-sm font-bold ${isToday ? 'text-teal-400' : 'text-[#F1EDE3]'}`}>{day}</span>
+                      
+                      {/* Record Dot/Badge */}
+                      {recordConfig && (
+                        <div className={`absolute bottom-1.5 w-2 h-2 rounded-full ${recordConfig.color}`}></div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Summary */}
+            <div className="bg-[#1E1D17] p-5 rounded-2xl shadow-lg border border-[#2D2B23] flex items-center justify-between">
+              <div>
+                <p className="text-sm text-[#A39D8D] mb-1">이번 달 누적 운동</p>
+                <p className="text-2xl font-black text-teal-400">{Object.keys(records).filter(k => k.startsWith(`${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`)).length} <span className="text-base font-medium text-[#F1EDE3]">일</span></p>
+              </div>
+              <Activity className="w-10 h-10 text-[#2D2B23]" />
+            </div>
+
+            {/* Date Selection Modal */}
+            {selectedDate && (
+              <div className="fixed inset-0 z-50 bg-black/80 flex items-end md:items-center justify-center p-4">
+                <div className="bg-[#1E1D17] w-full max-w-sm rounded-3xl p-6 border border-[#2D2B23] animate-in slide-in-from-bottom-8">
+                  <div className="flex justify-between items-center mb-6 border-b border-[#2D2B23] pb-4">
+                    <h3 className="text-lg font-bold">{selectedDate.split('-')[1]}월 {selectedDate.split('-')[2]}일 기록</h3>
+                    <button onClick={() => setSelectedDate(null)} className="p-1 hover:bg-[#2D2B23] rounded-lg"><X className="w-5 h-5 text-[#A39D8D]" /></button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {recordOptions.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleRecordSelect(opt.id)}
+                        className={`p-3 rounded-xl border flex items-center justify-center transition-all font-bold text-sm ${
+                          records[selectedDate] === opt.id 
+                            ? `${opt.color} border-transparent text-white shadow-lg` 
+                            : 'bg-[#15140F] border-[#2D2B23] text-[#A39D8D] hover:border-[#4B4739]'
+                        }`}
+                      >
+                        {records[selectedDate] === opt.id && <Check className="w-4 h-4 mr-1.5" />}
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {records[selectedDate] && (
+                    <button onClick={removeRecord} className="w-full py-3 bg-red-900/20 text-red-400 rounded-xl font-bold text-sm hover:bg-red-900/40 transition-colors">
+                      기록 삭제
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- 3. KNEE CARE TAB --- */}
+        {activeTab === 'knee' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+            
+            <div className="bg-red-900/20 border border-red-500/40 rounded-3xl p-6 text-center shadow-lg">
+              <AlertTriangle className="text-red-400 w-8 h-8 mx-auto mb-3" />
+              <h2 className="text-xl font-extrabold text-red-400 mb-2">러닝 즉시 중단</h2>
+              <p className="text-red-200/80 text-sm leading-relaxed">
+                통증이 사라질 때까지 하체 부하가 걸리는 러닝은 쉬어야 합니다. 유산소는 아래 대체 운동으로 진행하세요.
+              </p>
+            </div>
+
+            <div className="bg-[#1E1D17] rounded-3xl p-6 shadow-lg border border-[#2D2B23] border-l-4 border-l-teal-500">
+              <h2 className="text-lg font-bold text-[#F1EDE3] mb-4 flex items-center"><RefreshCcw className="w-5 h-5 text-teal-500 mr-2" /> 대체 유산소</h2>
+              <div className="space-y-3">
+                <div className="p-4 bg-[#15140F] rounded-2xl border border-[#2D2B23]">
+                  <h3 className="font-bold text-teal-400 text-sm mb-1">🚲 실내 자전거 (추천)</h3>
+                  <p className="text-xs text-[#A39D8D]">저항을 가볍게, 안장을 높여 다리를 곧게 뻗으며 타세요.</p>
+                </div>
+                <div className="p-4 bg-[#15140F] rounded-2xl border border-[#2D2B23]">
+                  <h3 className="font-bold text-blue-400 text-sm mb-1">🏊‍♂️ 수영 / 아쿠아로빅</h3>
+                  <p className="text-xs text-[#A39D8D]">평영(개구리헤엄)은 무릎을 비틀기 때문에 금물입니다.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#1E1D17] rounded-3xl p-6 shadow-lg border border-[#2D2B23]">
+              <h2 className="text-lg font-bold text-[#F1EDE3] mb-4 flex items-center"><Stethoscope className="w-5 h-5 text-indigo-400 mr-2" /> 회복 가이드</h2>
+              <ul className="space-y-4">
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 shrink-0" />
+                  <p className="text-[#C2BCAB] text-sm"><strong className="text-[#F1EDE3]">폼롤러 필수:</strong> 허벅지 바깥쪽과 앞쪽을 매일 아플 정도로 밀어주세요.</p>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 shrink-0" />
+                  <p className="text-[#C2BCAB] text-sm"><strong className="text-[#F1EDE3]">하체 운동 주의:</strong> Day 3 하체 루틴 진행 시 무릎이 아프면 즉시 멈추세요.</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-[#1E1D17] border-t border-[#2D2B23] px-6 py-3 pb-safe z-50">
+        <div className="flex justify-between items-center max-w-md mx-auto">
+          <button 
+            onClick={() => setActiveTab('workout')}
+            className={`flex flex-col items-center p-2 transition-colors ${activeTab === 'workout' ? 'text-teal-400' : 'text-[#A39D8D]'}`}
+          >
+            <Dumbbell className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">루틴</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('calendar')}
+            className={`flex flex-col items-center p-2 transition-colors ${activeTab === 'calendar' ? 'text-teal-400' : 'text-[#A39D8D]'}`}
+          >
+            <CalendarDays className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">기록</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('knee')}
+            className={`flex flex-col items-center p-2 transition-colors ${activeTab === 'knee' ? 'text-teal-400' : 'text-[#A39D8D]'}`}
+          >
+            <HeartPulse className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">케어</span>
+          </button>
+        </div>
+      </nav>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+      `}} />
     </div>
   );
 }
+
+
+
+
