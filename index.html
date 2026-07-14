@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Target, Flame, Info, Youtube, Activity, Camera, Dumbbell, AlertTriangle, 
-  Bone, ShieldAlert, RefreshCcw, CheckCircle, ChevronRight, Stethoscope,
-  CalendarDays, HeartPulse, X, Check, Plus
+  Target, Flame, Youtube, Activity, Camera, Dumbbell, AlertTriangle, 
+  RefreshCcw, CheckCircle, ChevronRight, Stethoscope,
+  CalendarDays, HeartPulse, X, Check
 } from 'lucide-react';
 
 const workoutData = [
@@ -47,9 +47,13 @@ const recordOptions = [
 export default function App() {
   const [activeTab, setActiveTab] = useState('workout'); // workout, calendar, knee
   const [activeDay, setActiveDay] = useState(0);
-
-  // --- 추가된 부분: 운동 완료 상태 관리 ---
   const [completedWorkouts, setCompletedWorkouts] = useState({});
+
+  // 달력 관련 상태
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [records, setRecords] = useState({});
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const handleToggleExercise = (exerciseName) => {
     setCompletedWorkouts(prev => ({
@@ -57,12 +61,6 @@ export default function App() {
       [exerciseName]: !prev[exerciseName]
     }));
   };
-
-  // --- 달력 상태 관리 ---
-  const today = new Date();
-  const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
-  const [records, setRecords] = useState({}); // { '2026-07-14': 'Day 1' }
-  const [selectedDate, setSelectedDate] = useState(null); // 모달창 띄울 날짜
 
   // 달력 계산 함수
   const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -150,9 +148,12 @@ export default function App() {
               ))}
             </div>
 
-            <div className="bg-[#1E1D17] p-5 rounded-2xl shadow-lg border border-[#2D2B23] border-l-4 border-l-teal-500 mb-6">
-              <h2 className="text-lg md:text-xl font-bold text-[#F1EDE3] mb-1">{workoutData[activeDay].title}</h2>
-              <p className="text-[#A39D8D] text-sm">{workoutData[activeDay].focus}</p>
+            <div className="bg-[#1E1D17] p-5 rounded-2xl shadow-lg border border-[#2D2B23] border-l-4 border-l-teal-500 mb-6 flex items-center gap-4">
+              <Target className="w-8 h-8 text-teal-500 shrink-0" />
+              <div>
+                <h2 className="text-lg md:text-xl font-bold text-[#F1EDE3] mb-1">{workoutData[activeDay].title}</h2>
+                <p className="text-[#A39D8D] text-sm">{workoutData[activeDay].focus}</p>
+              </div>
             </div>
 
             <main className="space-y-6">
@@ -160,7 +161,7 @@ export default function App() {
                 const isCompleted = !!completedWorkouts[exercise.name];
 
                 return (
-                  <div key={index} className={`bg-[#1E1D17] rounded-3xl shadow-lg border overflow-hidden flex flex-col group transition-all duration-300 ${isCompleted ? 'border-teal-500/50 bg-[#1e2723]' : 'border-[#2D2B23] hover:border-[#4B4739]'}`}>
+                  <div key={index} className={`bg-[#1E1D17] rounded-3xl shadow-lg border overflow-hidden flex flex-col group transition-all duration-300 ${isCompleted ? 'border-teal-500/50 bg-[#1e2723]' : 'border-[#2D2B23]'}`}>
                     <div className="p-6 md:p-8 flex flex-col justify-between">
                       <div>
                         {/* Title & Checkbox */}
@@ -177,7 +178,7 @@ export default function App() {
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all shrink-0 ${
                               isCompleted 
                                 ? 'bg-teal-500 text-[#15140F] border-teal-500' 
-                                : 'bg-[#15140F] border-[#2D2B23] text-[#A39D8D] hover:text-[#F1EDE3]'
+                                : 'bg-[#15140F] border-[#2D2B23] text-[#A39D8D]'
                             }`}
                           >
                             <CheckCircle className="w-4 h-4" />
@@ -213,7 +214,7 @@ export default function App() {
                           href={`https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.searchQuery)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center bg-[#E53E3E] hover:bg-[#C53030] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm"
+                          className="flex items-center bg-[#E53E3E] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm"
                         >
                           <Youtube className="w-5 h-5 mr-2" />
                           자세 영상 보기
@@ -281,21 +282,12 @@ export default function App() {
               </div>
             </div>
 
-            {/* Summary */}
-            <div className="bg-[#1E1D17] p-5 rounded-2xl shadow-lg border border-[#2D2B23] flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#A39D8D] mb-1">이번 달 누적 운동</p>
-                <p className="text-2xl font-black text-teal-400">{Object.keys(records).filter(k => k.startsWith(`${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`)).length} <span className="text-base font-medium text-[#F1EDE3]">일</span></p>
-              </div>
-              <Activity className="w-10 h-10 text-[#2D2B23]" />
-            </div>
-
             {/* Date Selection Modal */}
             {selectedDate && (
               <div className="fixed inset-0 z-50 bg-black/80 flex items-end md:items-center justify-center p-4">
                 <div className="bg-[#1E1D17] w-full max-w-sm rounded-3xl p-6 border border-[#2D2B23] animate-in slide-in-from-bottom-8">
                   <div className="flex justify-between items-center mb-6 border-b border-[#2D2B23] pb-4">
-                    <h3 className="text-lg font-bold">{selectedDate.split('-')[1]}월 {selectedDate.split('-')[2]}일 기록</h3>
+                    <h3 className="text-lg font-bold text-[#F1EDE3]">{selectedDate.split('-')[1]}월 {selectedDate.split('-')[2]}일 기록</h3>
                     <button onClick={() => setSelectedDate(null)} className="p-1 hover:bg-[#2D2B23] rounded-lg"><X className="w-5 h-5 text-[#A39D8D]" /></button>
                   </div>
                   
@@ -307,7 +299,7 @@ export default function App() {
                         className={`p-3 rounded-xl border flex items-center justify-center transition-all font-bold text-sm ${
                           records[selectedDate] === opt.id 
                             ? `${opt.color} border-transparent text-white shadow-lg` 
-                            : 'bg-[#15140F] border-[#2D2B23] text-[#A39D8D] hover:border-[#4B4739]'
+                            : 'bg-[#15140F] border-[#2D2B23] text-[#A39D8D]'
                         }`}
                       >
                         {records[selectedDate] === opt.id && <Check className="w-4 h-4 mr-1.5" />}
@@ -317,7 +309,7 @@ export default function App() {
                   </div>
 
                   {records[selectedDate] && (
-                    <button onClick={removeRecord} className="w-full py-3 bg-red-900/20 text-red-400 rounded-xl font-bold text-sm hover:bg-red-900/40 transition-colors">
+                    <button onClick={removeRecord} className="w-full py-3 bg-red-900/20 text-red-400 rounded-xl font-bold text-sm">
                       기록 삭제
                     </button>
                   )}
@@ -372,7 +364,7 @@ export default function App() {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-[#1E1D17] border-t border-[#2D2B23] px-6 py-3 pb-safe z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-[#1E1D17] border-t border-[#2D2B23] px-6 py-3 z-50">
         <div className="flex justify-between items-center max-w-md mx-auto">
           <button 
             onClick={() => setActiveTab('workout')}
@@ -401,12 +393,9 @@ export default function App() {
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
       `}} />
     </div>
   );
 }
-
-
 
 
