@@ -5,34 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>바디프로필 12주 다이어리</title>
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- React & ReactDOM (Standalone용) -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
-  <!-- Babel (브라우저에서 JSX 코드를 실시간 번역) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
     body { background-color: #15140F; margin: 0; padding: 0; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    /* 애니메이션 효과용 유틸리티 */
     @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-in { animation: slideIn 0.5s ease-out forwards; }
   </style>
 </head>
 <body>
-  <!-- 리액트 앱이 그려질 도화지 -->
   <div id="root"></div>
 
-  <!-- 여기서부터 리액트 코드 시작 -->
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // --- 자체 내장 아이콘 컴포넌트 (외부 라이브러리 의존성 제거) ---
+    // --- 아이콘 컴포넌트 생략 (기존과 동일) ---
     const IconProps = { stroke: "currentColor", strokeWidth: "2", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" };
     const Target = ({className}) => <svg className={className} viewBox="0 0 24 24" {...IconProps}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
     const Flame = ({className}) => <svg className={className} viewBox="0 0 24 24" {...IconProps}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
@@ -53,6 +45,26 @@
     const Bone = ({className}) => <svg className={className} viewBox="0 0 24 24" {...IconProps}><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c0 .28.22.5.5.5a2.5 2.5 0 0 0 5 0c0-.81-.7-1.8 0-2.5Z"/></svg>;
     const ShieldAlert = ({className}) => <svg className={className} viewBox="0 0 24 24" {...IconProps}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-2 7-2 2.5 0 4.5 1 6.5 2a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>;
 
+    // 2026년 기준 대한민국 공휴일 데이터
+    const koreanHolidays = {
+      "2026-01-01": "신정",
+      "2026-02-16": "설날 연휴",
+      "2026-02-17": "설날",
+      "2026-02-18": "설날 연휴",
+      "2026-03-01": "3·1절",
+      "2026-03-02": "대체공휴일",
+      "2026-05-05": "어린이날",
+      "2026-05-24": "부처님오신날",
+      "2026-05-25": "대체공휴일",
+      "2026-06-06": "현충일",
+      "2026-08-15": "광복절",
+      "2026-09-24": "추석 연휴",
+      "2026-09-25": "추석",
+      "2026-09-26": "추석 연휴",
+      "2026-10-03": "개천절",
+      "2026-10-09": "한글날",
+      "2026-12-25": "기독탄신일"
+    };
 
     const workoutData = [
       { day: "Day 1", short: "가슴/삼두", title: "가슴 & 삼두 (앞으로 미는 날)", focus: "탄탄한 가슴 라인과 굵은 팔뚝 뒷면 만들기", exercises: [
@@ -96,29 +108,37 @@
       const [activeTab, setActiveTab] = useState('workout');
       const [activeDay, setActiveDay] = useState(0);
       
-      // 1. 브라우저 저장소에서 '기구 체크 기록' 불러오기
+      // 1. 브라우저 로컬 스토리지에서 기록 불러오기 (운동 완료 체크)
       const [completedWorkouts, setCompletedWorkouts] = useState(() => {
-        const saved = localStorage.getItem('bp_completed');
-        return saved ? JSON.parse(saved) : {};
+        try {
+          const saved = localStorage.getItem('bp_completed_workouts');
+          return saved ? JSON.parse(saved) : {};
+        } catch {
+          return {};
+        }
+      });
+
+      // 2. 브라우저 로컬 스토리지에서 기록 불러오기 (달력 기록)
+      const [records, setRecords] = useState(() => {
+        try {
+          const saved = localStorage.getItem('bp_calendar_records');
+          return saved ? JSON.parse(saved) : {};
+        } catch {
+          return {};
+        }
       });
 
       const today = new Date();
       const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
-      
-      // 2. 브라우저 저장소에서 '달력 누적 기록' 불러오기
-      const [records, setRecords] = useState(() => {
-        const saved = localStorage.getItem('bp_records');
-        return saved ? JSON.parse(saved) : {};
-      });
       const [selectedDate, setSelectedDate] = useState(null);
 
-      // 3. 기록이 변경될 때마다 브라우저 저장소에 영구 저장하기
+      // 3. 기록이 바뀔 때마다 로컬 스토리지에 자동 저장
       useEffect(() => {
-        localStorage.setItem('bp_completed', JSON.stringify(completedWorkouts));
+        localStorage.setItem('bp_completed_workouts', JSON.stringify(completedWorkouts));
       }, [completedWorkouts]);
 
       useEffect(() => {
-        localStorage.setItem('bp_records', JSON.stringify(records));
+        localStorage.setItem('bp_calendar_records', JSON.stringify(records));
       }, [records]);
 
       const handleToggleExercise = (exerciseName) => {
@@ -143,16 +163,18 @@
 
       const handleRecordSelect = (recordId) => {
         if (selectedDate) {
-          setRecords({ ...records, [selectedDate]: recordId });
+          setRecords(prev => ({ ...prev, [selectedDate]: recordId }));
           setSelectedDate(null);
         }
       };
 
       const removeRecord = () => {
         if (selectedDate) {
-          const newRecords = { ...records };
-          delete newRecords[selectedDate];
-          setRecords(newRecords);
+          setRecords(prev => {
+            const newRecords = { ...prev };
+            delete newRecords[selectedDate];
+            return newRecords;
+          });
           setSelectedDate(null);
         }
       };
@@ -313,6 +335,11 @@
                       const isToday = dateString === formatDateString(today.getFullYear(), today.getMonth(), today.getDate());
                       const record = records[dateString];
                       const recordConfig = recordOptions.find(opt => opt.id === record);
+                      
+                      // 요일 확인 (0: 일요일) 및 공휴일 확인
+                      const currentDayOfWeek = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day).getDay();
+                      const isHoliday = !!koreanHolidays[dateString];
+                      const isRedDay = currentDayOfWeek === 0 || isHoliday;
 
                       return (
                         <button
@@ -322,8 +349,15 @@
                             isToday ? 'border border-teal-500 bg-teal-500/10' : 'bg-[#15140F] border border-[#2D2B23] hover:bg-[#2D2B23]'
                           }`}
                         >
-                          <span className={`text-sm font-bold ${isToday ? 'text-teal-400' : 'text-[#F1EDE3]'}`}>{day}</span>
+                          <span className={`text-sm font-bold ${
+                            isToday ? 'text-teal-400' : 
+                            isRedDay ? 'text-red-400' : 
+                            'text-[#F1EDE3]'
+                          }`}>{day}</span>
                           
+                          {/* 공휴일 이름 표시 */}
+                          {isHoliday && <span className="text-[9px] text-red-400 mt-0.5 hidden md:block">{koreanHolidays[dateString]}</span>}
+
                           {recordConfig && (
                             <div className={`absolute bottom-1.5 w-2 h-2 rounded-full ${recordConfig.color}`}></div>
                           )}
