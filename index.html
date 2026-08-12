@@ -22,9 +22,9 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    // 핵심 수정사항: useEffect를 가져와야 로컬스토리지 저장이 가능합니다!
     const { useState, useEffect } = React;
 
+    // --- 아이콘 컴포넌트 ---
     const IconProps = { stroke: "currentColor", strokeWidth: "2", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" };
     const Target = ({className}) => <svg className={className} viewBox="0 0 24 24" {...IconProps}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
     const Flame = ({className}) => <svg className={className} viewBox="0 0 24 24" {...IconProps}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
@@ -47,23 +47,10 @@
 
     // 2026년 기준 대한민국 공휴일 데이터
     const koreanHolidays = {
-      "2026-01-01": "신정",
-      "2026-02-16": "설날 연휴",
-      "2026-02-17": "설날",
-      "2026-02-18": "설날 연휴",
-      "2026-03-01": "3·1절",
-      "2026-03-02": "대체공휴일",
-      "2026-05-05": "어린이날",
-      "2026-05-24": "부처님오신날",
-      "2026-05-25": "대체공휴일",
-      "2026-06-06": "현충일",
-      "2026-08-15": "광복절",
-      "2026-09-24": "추석 연휴",
-      "2026-09-25": "추석",
-      "2026-09-26": "추석 연휴",
-      "2026-10-03": "개천절",
-      "2026-10-09": "한글날",
-      "2026-12-25": "기독탄신일"
+      "2026-01-01": "신정", "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴",
+      "2026-03-01": "3·1절", "2026-03-02": "대체공휴일", "2026-05-05": "어린이날", "2026-05-24": "부처님오신날",
+      "2026-05-25": "대체공휴일", "2026-06-06": "현충일", "2026-08-15": "광복절", "2026-09-24": "추석 연휴",
+      "2026-09-25": "추석", "2026-09-26": "추석 연휴", "2026-10-03": "개천절", "2026-10-09": "한글날", "2026-12-25": "기독탄신일"
     };
 
     const workoutData = [
@@ -77,10 +64,14 @@
         { name: "시티드 로우 머신", visual: "발을 지지하고 앉아 줄을 당기는 기구", action: "바닥이나 의자에 앉아 발을 지지대에 대고, 손잡이를 배꼽 쪽으로 노 젓듯이 쭉 당겨줍니다.", reps: "15회씩 4세트", searchQuery: "시티드 로우 머신 자세 쇼츠" },
         { name: "암 컬 머신", visual: "팔꿈치를 받침대에 올리고 앉는 기구", action: "푹신한 받침대에 양팔을 얹고, 손잡이를 잡아 얼굴 쪽으로 구부려 올립니다.", reps: "15회씩 4세트", searchQuery: "암 컬 머신 자세 쇼츠" }
       ]},
-      { day: "Day 3", short: "하체", title: "하체 (모양 다듬기 & 힙업)", focus: "하체 굵기는 줄이고, 탄력과 데피니션 살리기", exercises: [
-        { name: "와이드 스쿼트 (맨몸)", visual: "다리를 넓게 벌리고 서서 하는 동작", action: "일반 스쿼트보다 다리를 넓게 벌려, 안쪽 허벅지와 엉덩이 하부 라인을 다듬는 데 집중합니다.", reps: "20~25회씩 4세트", searchQuery: "와이드 스쿼트 자세 쇼츠" },
-        { name: "스티프 레그 데드리프트", visual: "다리를 살짝만 굽히고 상체를 숙이는 동작", action: "무릎을 살짝만 굽힌 채 고정하고, 허리를 펴고 인사하듯 상체를 숙여 뒷 허벅지를 길게 늘려줍니다.", reps: "20회씩 4세트", searchQuery: "스티프 레그 데드리프트 자세 쇼츠" },
-        { name: "워킹 런지", visual: "넓은 보폭으로 걸어가며 앉는 동작", action: "보폭을 넓게 하여 한 걸음씩 내디디며 앉습니다. 엉덩이와 하체 전체 밸런스, 체지방 연소에 좋습니다.", reps: "왕복 30걸음씩 4세트", searchQuery: "워킹 런지 자세 쇼츠" }
+      // ✨ 핏블리님 뱃살 녹이는 루틴으로 Day 3 전면 교체
+      { day: "Day 3", short: "하체(핏블리)", title: "하체 전신 (뱃살 녹이는 루틴)", focus: "큰 근육을 사용하여 코어와 전신 체지방을 빠르게 태우기", exercises: [
+        { name: "STEP 1. 워밍업 걷기", visual: "러닝머신(트레드밀) 사용", action: "러닝머신의 경사도를 높게 설정(인클라인)하고, 가볍게 숨이 찰 정도로 5분간 걷습니다.", reps: "경사도 걷기 5분", searchQuery: "인클라인 러닝머신 걷기" },
+        { name: "STEP 2. 스쿼트", visual: "바벨을 메거나 맨몸/덤벨을 들고 서는 동작", action: "발을 어깨너비로 벌리고, 발끝은 살짝 바깥쪽으로. 허리를 곧게 펴고 엉덩이를 뒤로 빼며 앉았다 일어납니다.", reps: "10~12회씩 4세트", searchQuery: "기본 스쿼트 자세 쇼츠" },
+        { name: "STEP 3. 덤벨 런지", visual: "양손에 덤벨을 들고 걷거나 제자리에서 앞뒤로 다리를 굽히는 동작", action: "상체를 세운 상태에서 한쪽 다리를 앞으로 내밀고, 뒷다리 무릎이 바닥에 닿을 듯 말 듯 수직으로 내려갑니다.", reps: "12회씩 3세트", searchQuery: "덤벨 런지 자세 쇼츠" },
+        { name: "STEP 4. 루마니안 데드리프트", visual: "바벨이나 덤벨을 들고 허리를 곧게 펴서 인사하듯 숙이는 동작", action: "무릎을 살짝만 굽힌 상태로 고정! 허리가 굽지 않게 엉덩이를 뒤로 밀며 바를 무릎 아래까지 내렸다가 엉덩이 힘으로 올라옵니다. (뒷 허벅지 찌릿!)", reps: "12회씩 3세트", searchQuery: "루마니안 데드리프트 핏블리" },
+        { name: "STEP 5. 코어, 복근 운동", visual: "케이블 크런치 또는 매트 복근 운동", action: "하체로 피를 돌렸으니, 복근 운동으로 마무리하여 뱃살 지방을 태웁니다. 크런치나 플랭크를 진행하세요.", reps: "15회씩 4세트", searchQuery: "케이블 크런치 핏블리" },
+        { name: "STEP 6. ZONE2 유산소", visual: "실내 자전거, 일립티컬, 또는 러닝머신", action: "옆 사람과 대화는 가능하지만 약간 숨이 찬 정도의 심박수(최대 심박수의 60~70%)로 유산소 운동을 진행합니다.", reps: "중저강도 유산소 20분", searchQuery: "존2 유산소" }
       ]},
       { day: "Day 4", short: "어깨", title: "어깨 (볼륨 키우기)", focus: "하체와 밸런스를 맞추기 위한 어깨 뽕 장착", exercises: [
         { name: "숄더 프레스 머신", visual: "앉아서 양손잡이를 위로 미는 기구", action: "의자에 앉아 귀 옆에 있는 손잡이를 잡고, 만세 하듯이 하늘 위로 쭉 밀어 올립니다.", reps: "15회씩 4세트", searchQuery: "숄더 프레스 머신 자세 쇼츠" },
@@ -106,38 +97,34 @@
 
     function App() {
       const [activeTab, setActiveTab] = useState('workout');
-      const [activeDay, setActiveDay] = useState(0);
+      const [activeDay, setActiveDay] = useState(2); // Day 3(인덱스 2)를 기본 화면으로 설정
       
-      // 앱이 처음 켜질 때 브라우저 저장소(localStorage)에서 기존 기록을 불러옴
+      // ✨ [수정됨] LocalStorage에서 기록 불러오기
       const [completedWorkouts, setCompletedWorkouts] = useState(() => {
-        try {
-          const saved = localStorage.getItem('bp_completed_workouts');
-          return saved ? JSON.parse(saved) : {};
-        } catch { return {}; }
+        const saved = localStorage.getItem('bp_completedWorkouts');
+        return saved ? JSON.parse(saved) : {};
       });
+
+      const [records, setRecords] = useState(() => {
+        const saved = localStorage.getItem('bp_calendarRecords');
+        return saved ? JSON.parse(saved) : {};
+      });
+
+      // ✨ [수정됨] 상태가 변경될 때마다 LocalStorage에 자동 저장하기
+      useEffect(() => {
+        localStorage.setItem('bp_completedWorkouts', JSON.stringify(completedWorkouts));
+      }, [completedWorkouts]);
+
+      useEffect(() => {
+        localStorage.setItem('bp_calendarRecords', JSON.stringify(records));
+      }, [records]);
+
 
       const today = new Date();
       const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
-      
-      // 앱이 처음 켜질 때 달력 기록도 불러옴
-      const [records, setRecords] = useState(() => {
-        try {
-          const saved = localStorage.getItem('bp_calendar_records');
-          return saved ? JSON.parse(saved) : {};
-        } catch { return {}; }
-      });
       const [selectedDate, setSelectedDate] = useState(null);
 
-      // 체크 상태가 변할 때마다 무조건 브라우저에 저장!
-      useEffect(() => {
-        localStorage.setItem('bp_completed_workouts', JSON.stringify(completedWorkouts));
-      }, [completedWorkouts]);
-
-      // 달력 기록이 변할 때마다 무조건 브라우저에 저장!
-      useEffect(() => {
-        localStorage.setItem('bp_calendar_records', JSON.stringify(records));
-      }, [records]);
-
+      // 운동 체크 버튼 토글
       const handleToggleExercise = (exerciseName) => {
         setCompletedWorkouts(prev => ({
           ...prev,
@@ -145,6 +132,7 @@
         }));
       };
 
+      // 달력 관련 함수들
       const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
       const getFirstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
 
@@ -177,6 +165,7 @@
       return (
         <div className="min-h-screen font-sans text-[#F1EDE3] pb-24 md:pb-8 relative selection:bg-teal-500 selection:text-white">
           
+          {/* PC 헤더 */}
           <header className="hidden md:flex bg-[#1E1D17] border-b border-[#2D2B23] sticky top-0 z-40 shadow-sm">
             <div className="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between w-full">
               <div className="flex items-center gap-3">
@@ -202,15 +191,17 @@
             </div>
           </header>
 
+          {/* 모바일 헤더 */}
           <header className="md:hidden bg-[#1E1D17] border-b border-[#2D2B23] sticky top-0 z-40 px-4 py-3 flex items-center justify-center">
              <h1 className="text-lg font-black tracking-tight text-[#F1EDE3]">바프 12주 다이어리</h1>
           </header>
 
           <div className="max-w-5xl mx-auto p-4 md:p-8">
 
-            {/* 운동 루틴 탭 */}
+            {/* --- 1. 운동 루틴 탭 --- */}
             {activeTab === 'workout' && (
               <div className="animate-in">
+                {/* 상단 요일 선택 버튼 */}
                 <div className="flex overflow-x-auto hide-scrollbar bg-[#1E1D17] rounded-xl shadow-lg mb-6 p-2 space-x-2 border border-[#2D2B23]">
                   {workoutData.map((dayObj, index) => (
                     <button
@@ -227,6 +218,7 @@
                   ))}
                 </div>
 
+                {/* 해당 요일 제목 및 포커스 */}
                 <div className="bg-[#1E1D17] p-5 rounded-2xl shadow-lg border border-[#2D2B23] border-l-4 border-l-teal-500 mb-6 flex items-center gap-4">
                   <Target className="w-8 h-8 text-teal-500 shrink-0" />
                   <div>
@@ -235,6 +227,7 @@
                   </div>
                 </div>
 
+                {/* 운동 목록 렌더링 */}
                 <main className="space-y-6">
                   {workoutData[activeDay].exercises.map((exercise, index) => {
                     const isCompleted = !!completedWorkouts[exercise.name];
@@ -243,6 +236,7 @@
                       <div key={index} className={`bg-[#1E1D17] rounded-3xl shadow-lg border overflow-hidden flex flex-col group transition-all duration-300 ${isCompleted ? 'border-teal-500/50 bg-[#1e2723]' : 'border-[#2D2B23]'}`}>
                         <div className="p-6 md:p-8 flex flex-col justify-between">
                           <div>
+                            {/* 타이틀 및 완료 체크 버튼 */}
                             <div className="flex items-center justify-between mb-5">
                               <div className="flex items-center">
                                 <div className="bg-[#15140F] text-teal-500 font-black w-10 h-10 rounded-full flex items-center justify-center mr-4 shrink-0 text-lg border border-[#2D2B23]">
@@ -265,11 +259,13 @@
                               </button>
                             </div>
 
+                            {/* 기구/운동 묘사 */}
                             <div className="bg-[#15140F] rounded-2xl p-5 mb-6 border border-[#2D2B23]">
-                              <p className="text-xs font-bold text-[#A39D8D] mb-1 tracking-wider uppercase">기구 생김새</p>
+                              <p className="text-xs font-bold text-[#A39D8D] mb-1 tracking-wider uppercase">기구/동작 묘사</p>
                               <p className="text-sm md:text-base font-semibold text-[#F1EDE3]">{exercise.visual}</p>
                             </div>
 
+                            {/* 어떻게 하나요? */}
                             <div className="flex items-start space-x-3 mb-6 pl-2">
                               <Activity className="w-6 h-6 text-emerald-500 mt-1 shrink-0" />
                               <div>
@@ -279,6 +275,7 @@
                             </div>
                           </div>
 
+                          {/* 횟수 및 유튜브 링크 버튼 */}
                           <div className="flex flex-wrap items-center justify-between border-t border-[#2D2B23] pt-5 mt-2 gap-3">
                             <div className="flex items-center bg-orange-900/20 text-orange-400 px-4 py-2.5 rounded-xl text-sm font-bold border border-orange-900/40">
                               <Flame className="w-5 h-5 mr-2" />
@@ -303,16 +300,18 @@
               </div>
             )}
 
-            {/* 달력 탭 */}
+            {/* --- 2. 달력 기록 탭 --- */}
             {activeTab === 'calendar' && (
               <div className="animate-in max-w-lg mx-auto">
                 <div className="bg-[#1E1D17] p-6 rounded-3xl shadow-lg border border-[#2D2B23] mb-6">
+                  {/* 달력 월 이동 */}
                   <div className="flex justify-between items-center mb-6">
                     <button onClick={prevMonth} className="p-2 bg-[#15140F] rounded-xl hover:bg-[#2D2B23] transition-colors"><ChevronRight className="w-5 h-5 rotate-180" /></button>
                     <h2 className="text-xl font-bold">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</h2>
                     <button onClick={nextMonth} className="p-2 bg-[#15140F] rounded-xl hover:bg-[#2D2B23] transition-colors"><ChevronRight className="w-5 h-5" /></button>
                   </div>
 
+                  {/* 요일 라벨 */}
                   <div className="grid grid-cols-7 gap-2 mb-2">
                     {['일', '월', '화', '수', '목', '금', '토'].map((day, i) => (
                       <div key={day} className={`text-center text-xs font-bold ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-[#A39D8D]'}`}>
@@ -321,6 +320,7 @@
                     ))}
                   </div>
 
+                  {/* 날짜 그리드 */}
                   <div className="grid grid-cols-7 gap-2">
                     {Array.from({ length: firstDay }).map((_, i) => (
                       <div key={`empty-${i}`} className="aspect-square rounded-xl bg-transparent"></div>
@@ -351,8 +351,10 @@
                             'text-[#F1EDE3]'
                           }`}>{day}</span>
                           
+                          {/* 공휴일 표기 */}
                           {isHoliday && <span className="text-[9px] text-red-400 mt-0.5 hidden md:block">{koreanHolidays[dateString]}</span>}
 
+                          {/* 달력 스티커 점 */}
                           {recordConfig && (
                             <div className={`absolute bottom-1.5 w-2 h-2 rounded-full ${recordConfig.color}`}></div>
                           )}
@@ -362,6 +364,7 @@
                   </div>
                 </div>
 
+                {/* 기록 선택 모달 */}
                 {selectedDate && (
                   <div className="fixed inset-0 z-50 bg-black/80 flex items-end md:items-center justify-center p-4">
                     <div className="bg-[#1E1D17] w-full max-w-sm rounded-3xl p-6 border border-[#2D2B23] animate-in">
@@ -398,28 +401,28 @@
               </div>
             )}
 
-            {/* 케어 탭 */}
+            {/* --- 3. 케어(무릎 관리) 탭 --- */}
             {activeTab === 'knee' && (
               <div className="animate-in space-y-6">
                 
                 <div className="bg-red-900/20 border border-red-500/40 rounded-3xl p-6 text-center shadow-lg">
                   <AlertTriangle className="text-red-400 w-8 h-8 mx-auto mb-3" />
-                  <h2 className="text-xl font-extrabold text-red-400 mb-2">러닝 즉시 중단</h2>
+                  <h2 className="text-xl font-extrabold text-red-400 mb-2">무릎 통증 시 러닝 즉시 중단</h2>
                   <p className="text-red-200/80 text-sm leading-relaxed">
-                    통증이 사라질 때까지 하체 부하가 걸리는 러닝은 쉬어야 합니다. 유산소는 아래 대체 운동으로 진행하세요.
+                    무릎 앞쪽이나 바깥쪽에 통증이 있다면 통증이 사라질 때까지 하체 부하가 걸리는 러닝은 쉬어야 합니다. 유산소는 아래 대체 운동으로 진행하세요.
                   </p>
                 </div>
 
                 <div className="bg-[#1E1D17] rounded-3xl p-6 shadow-lg border border-[#2D2B23] border-l-4 border-l-teal-500">
-                  <h2 className="text-lg font-bold text-[#F1EDE3] mb-4 flex items-center"><RefreshCcw className="w-5 h-5 text-teal-500 mr-2" /> 대체 유산소</h2>
+                  <h2 className="text-lg font-bold text-[#F1EDE3] mb-4 flex items-center"><RefreshCcw className="w-5 h-5 text-teal-500 mr-2" /> 대체 유산소 (무릎 보호)</h2>
                   <div className="space-y-3">
                     <div className="p-4 bg-[#15140F] rounded-2xl border border-[#2D2B23]">
                       <h3 className="font-bold text-teal-400 text-sm mb-1">🚲 실내 자전거 (추천)</h3>
-                      <p className="text-xs text-[#A39D8D]">저항을 가볍게, 안장을 높여 다리를 곧게 뻗으며 타세요.</p>
+                      <p className="text-xs text-[#A39D8D]">저항을 가볍게, 안장을 높여 다리를 곧게 뻗으며 타세요. 무릎 관절에 가해지는 체중 부하를 없애줍니다.</p>
                     </div>
                     <div className="p-4 bg-[#15140F] rounded-2xl border border-[#2D2B23]">
                       <h3 className="font-bold text-blue-400 text-sm mb-1">🏊‍♂️ 수영 / 아쿠아로빅</h3>
-                      <p className="text-xs text-[#A39D8D]">평영(개구리헤엄)은 무릎을 비틀기 때문에 금물입니다.</p>
+                      <p className="text-xs text-[#A39D8D]">물의 부력을 이용해 관절 부담 없이 전신 유산소가 가능합니다. 단, 평영(개구리헤엄)은 금물입니다.</p>
                     </div>
                   </div>
                 </div>
@@ -429,11 +432,11 @@
                   <ul className="space-y-4">
                     <li className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 shrink-0" />
-                      <p className="text-[#C2BCAB] text-sm"><strong className="text-[#F1EDE3]">폼롤러 필수:</strong> 허벅지 바깥쪽과 앞쪽을 매일 아플 정도로 밀어주세요.</p>
+                      <p className="text-[#C2BCAB] text-sm"><strong className="text-[#F1EDE3]">폼롤러 필수:</strong> 허벅지 바깥쪽(장경인대)과 앞쪽을 매일 폼롤러로 아플 정도로 밀어주세요.</p>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 shrink-0" />
-                      <p className="text-[#C2BCAB] text-sm"><strong className="text-[#F1EDE3]">하체 운동 주의:</strong> Day 3 하체 루틴 진행 시 무릎이 아프면 즉시 멈추세요.</p>
+                      <p className="text-[#C2BCAB] text-sm"><strong className="text-[#F1EDE3]">하체 운동 주의:</strong> 하체 루틴(스쿼트, 런지 등) 진행 시 무릎에 통증이 발생하면 억지로 참고 하지 말고 즉시 중단하세요.</p>
                     </li>
                   </ul>
                 </div>
@@ -442,6 +445,7 @@
 
           </div>
 
+          {/* 모바일 하단 네비게이션 */}
           <nav className="md:hidden fixed bottom-0 left-0 w-full bg-[#1E1D17] border-t border-[#2D2B23] px-6 py-3 z-50">
             <div className="flex justify-between items-center max-w-md mx-auto">
               <button 
@@ -477,3 +481,5 @@
   </script>
 </body>
 </html>
+
+
